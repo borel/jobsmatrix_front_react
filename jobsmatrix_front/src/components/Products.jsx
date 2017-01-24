@@ -1,113 +1,106 @@
 import React from 'react'
-class Products extends React.Component {
+class Criterias extends React.Component {
 
   constructor(props) {
     super(props);
 
-    //  this.state.products = [];
     this.state = {};
     this.state.filterText = "";
-    this.state.products = [
+
+    this.state.values = [];
+
+    this.state.firms = [
       {
         id: 1,
-        category: 'Sporting Goods',
-        price: '49.99',
-        qty: 12,
-        name: 'Football'
-      }, {
-        id: 2,
-        category: 'Sporting Goods',
-        price: '9.99',
-        qty: 15,
-        name: 'Baseball'
-      }, {
-        id: 3,
-        category: 'Sporting Goods',
-        price: '29.99',
-        qty: 14,
-        name: 'Basketball'
-      }, {
-        id: 4,
-        category: 'Electronics',
-        price: '99.99',
-        qty: 34,
-        name: 'iPod Touch'
-      }, {
-        id: 5,
-        category: 'Electronics',
-        price: '399.99',
-        qty: 12,
-        name: 'iPhone 5'
-      }, {
-        id: 6,
-        category: 'Electronics',
-        price: '199.99',
-        qty: 23,
-        name: 'Nexu 7'
+        name: "Google"
       }
+      // }, {
+      //   id: 3,
+      //   name: "Allocab"
+      // }
+    ]
+
+    this.state.criterias = [
+      {
+        id: 1,
+        name: 'Technos'
+      }
+      // }, {
+      //   id: 2,
+      //   name: 'Lieux',
+      // }, {
+      //   id: 3,
+      //   name: 'Ambiance',
+      // }, {
+      //   id: 4,
+      //   name: 'Salaire',
+      // }
     ];
-
   }
+
   handleUserInput(filterText) {
-    this.setState({filterText: filterText});
-  };
-  handleRowDel(product) {
-    var index = this.state.products.indexOf(product);
-    this.state.products.splice(index, 1);
-    this.setState(this.state.products);
+    this.setState({ filterText: filterText });
   };
 
-  handleAddEvent(evt) {
+  handleDelCriteria(criteria) {
+    var index = this.state.criterias.indexOf(criteria);
+    this.state.criterias.splice(index, 1);
+    this.setState(this.state.criterias);
+  };
+
+  handleAddCriteria(evt) {
     var id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
-    var product = {
+    var criteria = {
       id: id,
-      name: "",
-      price: "",
-      category: "",
-      qty: 0
+      name: "Nrw Criteria",
     }
-
-    console.log("button clicket");
-    this.state.products.push(product);
-    this.setState(this.state.products);
-
+    this.state.criterias.push(criteria);
+    this.setState(this.state.criterias);
   }
 
-  handleProductTable(evt) {
+
+  handleAddFirm(evt) {
+    var id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
+    var firm = {
+      id: id,
+      name: "New Firm",
+    }
+    this.state.firms.push(firm);
+    this.setState(this.state.firms);
+  }
+
+  handleCriteriaTable(evt) {
     var item = {
       id: evt.target.id,
-      name: evt.target.name,
       value: evt.target.value
     };
-    var products = this.state.products;
 
-    var newProducts = products.map(function(product) {
-      for (var key in product) {
-        if (key == item.name && product.id == item.id) {
-          //  console.log("inside mao");
-          //   console.log(product);
-          product.id = item.id;
-          product[key] = item.value;
+    var values = this.state.values;
+    console.log(values);
+    console.log(item);
 
-        }
+    var newValues = values.map(function (value) {
+      if (value.id == item.id) {
+        value.value = item.value;
       }
-      return product;
+      return value;
     });
-    this.setState(newProducts);
-    console.log(this.state.products);
+
+    this.setState(newValues);
   };
   render() {
 
     return (
       <div>
-        <SearchBar filterText={this.state.filterText} onUserInput={this.handleUserInput.bind(this)}/>
-        <ProductTable onProductTableUpdate={this.handleProductTable.bind(this)} onRowAdd={this.handleAddEvent.bind(this)} onRowDel={this.handleRowDel.bind(this)} products={this.state.products} filterText={this.state.filterText}/>
+        <SearchBar filterText={this.state.filterText} onUserInput={this.handleUserInput.bind(this)} />
+        <CriteriaTable onCriteriaTableUpdate={this.handleCriteriaTable.bind(this)} onFirmAdd={this.handleAddFirm.bind(this)} onCriteriaAdd={this.handleAddCriteria.bind(this)} onCriteriaDel={this.handleDelCriteria.bind(this)} criterias={this.state.criterias} firms={this.state.firms} filterText={this.state.filterText} values={this.state.values} />
       </div>
     );
 
   }
 
 }
+
 class SearchBar extends React.Component {
   handleChange() {
     this.props.onUserInput(this.refs.filterTextInput.value);
@@ -115,104 +108,121 @@ class SearchBar extends React.Component {
   render() {
     return (
       <div>
-
-        <input type="text" placeholder="Search..." value={this.props.filterText} ref="filterTextInput" onChange={this.handleChange.bind(this)}/>
-
+        <input type="text" placeholder="Search..." value={this.props.filterText} ref="filterTextInput" onChange={this.handleChange.bind(this)} />
       </div>
-
     );
   }
 
 }
 
-class ProductTable extends React.Component {
-
+class CriteriaTable extends React.Component {
   render() {
-    var onProductTableUpdate = this.props.onProductTableUpdate;
-    var rowDel = this.props.onRowDel;
+    var onCriteriaTableUpdate = this.props.onCriteriaTableUpdate;
+    var criteriaDel = this.props.onCriteriaDel;
     var filterText = this.props.filterText;
-    var product = this.props.products.map(function(product) {
-      if (product.name.indexOf(filterText) === -1) {
+    var firms = this.props.firms
+    var values = this.props.values
+    var criteriaTableRow = this.props.criterias.map(function (criteria) {
+      if (criteria.name.indexOf(filterText) === -1) {
         return;
       }
-      return (<ProductRow onProductTableUpdate={onProductTableUpdate} product={product} onDelEvent={rowDel.bind(this)} key={product.id}/>)
+      return (<CriteriaTableRow onCriteriaTableUpdate={onCriteriaTableUpdate} criteria={criteria} firms={firms} values={values} onDelEvent={criteriaDel.bind(this)} key={criteria.id} />)
     });
+
+    var firm = this.props.firms.map(function (firm) {
+      return (<FirmColumn onCriteriaTableUpdate={onCriteriaTableUpdate} firm={firm} key={firm.id} />)
+    });
+
+
     return (
       <div>
-
-
-      <button type="button" onClick={this.props.onRowAdd} className="btn btn-success pull-right">Add</button>
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>price</th>
-              <th>quantity</th>
-              <th>category</th>
+              <th>Criterias</th>
+              {firm}
+              <th><button type="button" onClick={this.props.onFirmAdd} className="btn btn-success pull-right">+</button></th>
             </tr>
           </thead>
 
           <tbody>
-            {product}
-
+            {criteriaTableRow}
+            <button type="button" onClick={this.props.onCriteriaAdd} className="btn btn-success pull-right">+</button>
           </tbody>
 
         </table>
       </div>
     );
-
   }
-
 }
 
-class ProductRow extends React.Component {
-  onDelEvent() {
-    this.props.onDelEvent(this.props.product);
+class FirmColumn extends React.Component {
+  render() {
+    return (
+      <th className="eachRow" > {this.props.firm.name}</th>
+    );
+  }
+}
 
+class CriteriaTableRow extends React.Component {
+  onDelEvent() {
+    this.props.onDelEvent(this.props.criteria);
   }
   render() {
+    var onCriteriaTableUpdate = this.props.onCriteriaTableUpdate;
+    var values = this.props.values
+    var criteria = this.props.criteria
+    var criterias = this.props.firms.map(function (firm) {
+      return (<CriteriaRow onCriteriaTableUpdate={onCriteriaTableUpdate} firm={firm} criteria={criteria} key={firm.id} values={values} />)
+    });
 
     return (
       <tr className="eachRow">
-        <EditableCell onProductTableUpdate={this.props.onProductTableUpdate} cellData={{
+        <EditableCell onCriteriaTableUpdate={this.props.onCriteriaTableUpdate} cellData={{
           "type": "name",
-          value: this.props.product.name,
-          id: this.props.product.id
-        }}/>
-        <EditableCell onProductTableUpdate={this.props.onProductTableUpdate} cellData={{
-          type: "price",
-          value: this.props.product.price,
-          id: this.props.product.id
-        }}/>
-        <EditableCell onProductTableUpdate={this.props.onProductTableUpdate} cellData={{
-          type: "qty",
-          value: this.props.product.qty,
-          id: this.props.product.id
-        }}/>
-        <EditableCell onProductTableUpdate={this.props.onProductTableUpdate} cellData={{
-          type: "category",
-          value: this.props.product.category,
-          id: this.props.product.id
-        }}/>
+          value: this.props.criteria.name,
+          id: this.props.criteria.id
+        }} />
+        {criterias}
         <td className="del-cell">
-          <input type="button" onClick={this.onDelEvent.bind(this)} value="X" className="del-btn"/>
+          <input type="button" onClick={this.onDelEvent.bind(this)} value="X" className="del-btn" />
         </td>
       </tr>
     );
-
   }
-
 }
-class EditableCell extends React.Component {
 
+class CriteriaRow extends React.Component {
+  render() {
+
+    function findElement(element,idToFind) {
+      return element.id === idToFind;
+    }
+
+    var firm = this.props.firm
+    var criteria = this.props.criteria
+  
+    var values = this.props.values
+    let value = { id: firm.id + "/" + criteria.id, value: '12' };
+    if (!values.find(findElement)){
+      values.push(value);
+    }
+    return (
+      <EditableCell onCriteriaTableUpdate={this.props.onCriteriaTableUpdate} cellData={value} />
+    );
+  }
+}
+
+
+class EditableCell extends React.Component {
   render() {
     return (
       <td>
-        <input type='text' name={this.props.cellData.type} id={this.props.cellData.id} value={this.props.cellData.value} onChange={this.props.onProductTableUpdate}/>
+        <input type='text' name={this.props.cellData.type} id={this.props.cellData.id} value={this.props.cellData.value} onChange={this.props.onCriteriaTableUpdate} />
       </td>
     );
 
   }
 
 }
-export default Products;
+export default Criterias;
