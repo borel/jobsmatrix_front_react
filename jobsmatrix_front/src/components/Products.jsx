@@ -14,6 +14,10 @@ class Criterias extends React.Component {
         id: 1,
         value: "Google"
       }, {
+        id: 2,
+        value: "Mycs"
+      }
+      , {
         id: 3,
         value: "Allocab"
       }
@@ -24,16 +28,16 @@ class Criterias extends React.Component {
         id: "1",
         value: 'Technos'
       }
-      // , {
-      //   id: "2",
-      //   value: 'Lieux',
-      // }, {
-      //   id: "3",
-      //   value: 'Ambiance',
-      // }, {
-      //   id: "4",
-      //   value: 'Salaire',
-      // }
+      , {
+        id: "2",
+        value: 'Lieux',
+      }, {
+        id: "3",
+        value: 'Ambiance',
+      }, {
+        id: "4",
+        value: 'Salaire',
+      }
     ];
   }
 
@@ -161,15 +165,14 @@ class GenericTable extends React.Component {
         <table className="table table-bordered">
           <thead>
             <tr>
-              <th>Criterias/Firms</th>
+              <th> <button type="button" onClick={this.props.onCriteriaAdd} className="btn btn-success pull-right">+</button>Criterias/Firms <button type="button" onClick={this.props.onFirmAdd} className="btn btn-success pull-right">+</button></th>
               {firm}
-              <th><button type="button" onClick={this.props.onFirmAdd} className="btn btn-success pull-right">+</button></th>
+              <th></th>
             </tr>
           </thead>
 
           <tbody>
             {rows}
-            <button type="button" onClick={this.props.onCriteriaAdd} className="btn btn-success pull-right">+</button>
           </tbody>
 
         </table>
