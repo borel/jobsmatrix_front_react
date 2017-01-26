@@ -9,16 +9,31 @@ class Criterias extends React.Component {
 
     this.state.values = [];
 
+    this.state.results = [
+      {
+        firmId: "1",
+        value: 0
+      },
+      {
+        firmId: "2",
+        value: 0
+      },
+      {
+        firmId: "3",
+        value: 0
+      }
+    ]
+
     this.state.firms = [
       {
-        id: 1,
+        id: "1",
         value: "Google"
       }, {
-        id: 2,
+        id: "2",
         value: "Mycs"
       }
       , {
-        id: 3,
+        id: "3",
         value: "Allocab"
       }
     ]
@@ -47,6 +62,16 @@ class Criterias extends React.Component {
     var index = this.state.criterias.indexOf(criteria);
     this.state.criterias.splice(index, 1);
     this.setState(this.state.criterias);
+
+    // Update values tab , delete the values of the deleteed criteria
+    this.state.values = this.state.values.filter(element => element.criteriaId !== criteria.id)
+    this.setState(this.state.values);
+
+    this.state.firms.map(element => {
+    this.handleResultUpdate(element.id);
+
+    })
+
   };
 
   handleAddCriteria(evt) {
@@ -59,9 +84,16 @@ class Criterias extends React.Component {
     }
     this.state.criterias.push(criteria);
 
+    // Add result value 
+    let result = {
+      firmId: id,
+      value: 0
+    }
+    this.state.results.push(result);
 
     console.log(this.state.criterias);
     this.setState(this.state.criterias);
+    this.setState(this.state.results);
   }
 
   handleAddFirm(evt) {
@@ -112,9 +144,31 @@ class Criterias extends React.Component {
     this.setState(this.state.firms);
   }
 
+  handleResultUpdate(firmId) {
+    //  find values for firm and take only the value
+    let valuesForFirm = this.state.values.filter(element => element.firmId === firmId)
+    let values = valuesForFirm.map(element => {
+      if (element.value) {
+        return parseInt(element.value);
+      } else {
+        return 0;
+      }
+    })
+    let totValuesForFirm = values.reduce((a, b) => a + b, 0);
+    let avgValue = totValuesForFirm / values.length
+
+    let resultToFind = this.state.results.find(element => element.firmId === firmId)
+    if (resultToFind) {
+      resultToFind.value = avgValue
+    }
+
+    this.setState(this.state.results);
+  }
+
   handleValuesUpdate(evt) {
     console.log("handleValuesUpdate")
-    console.log(this.state.values)
+
+    // Update the value
     var item = {
       id: evt.target.id,
       value: evt.target.value
@@ -125,14 +179,18 @@ class Criterias extends React.Component {
       element.value = item.value
     }
 
-    console.log(this.state.values)
+    // Update the Result , get all the result from this firm 
+    let firmId = item.id.split("/")[0]
+    let criteriaId = item.id.split("/")[1]
+
+    this.handleResultUpdate(firmId);
     this.setState(this.state.values);
   };
   render() {
 
     return (
       <div>
-        <GenericTable onValuesUpdate={this.handleValuesUpdate.bind(this)} onFirmsUpdate={this.handleFirmsUpdate.bind(this)} onCriteriaUpdate={this.handleCriteriaUpdate.bind(this)} onFirmAdd={this.handleAddFirm.bind(this)} onCriteriaAdd={this.handleAddCriteria.bind(this)} onCriteriaDel={this.handleDelCriteria.bind(this)} criterias={this.state.criterias} firms={this.state.firms} filterText={this.state.filterText} values={this.state.values} />
+        <GenericTable onValuesUpdate={this.handleValuesUpdate.bind(this)} onFirmsUpdate={this.handleFirmsUpdate.bind(this)} onCriteriaUpdate={this.handleCriteriaUpdate.bind(this)} onFirmAdd={this.handleAddFirm.bind(this)} onCriteriaAdd={this.handleAddCriteria.bind(this)} onCriteriaDel={this.handleDelCriteria.bind(this)} criterias={this.state.criterias} firms={this.state.firms} results={this.state.results} filterText={this.state.filterText} values={this.state.values} />
       </div>
     );
 
@@ -151,6 +209,8 @@ class GenericTable extends React.Component {
 
     var firms = this.props.firms
     var values = this.props.values
+    var results = this.props.results
+
     var rows = this.props.criterias.map(function (criteria) {
       return (<Row onValuesUpdate={onValuesUpdate} onCriteriaUpdate={onCriteriaUpdate} criteria={criteria} firms={firms} values={values} onDelEvent={criteriaDel.bind(this)} key={criteria.id} />)
     });
@@ -159,6 +219,9 @@ class GenericTable extends React.Component {
       return (<FirmColumn onFirmsUpdate={onFirmsUpdate} firm={firm} key={firm.id} />)
     });
 
+    var results = this.props.firms.map(function (firm, values) {
+      return (<ResultRow firm={firm} key={firm.id} results={results} />)
+    });
 
     return (
       <div>
@@ -173,6 +236,11 @@ class GenericTable extends React.Component {
 
           <tbody>
             {rows}
+            <th>
+              Average results =>
+            </th>
+            {results}
+
           </tbody>
 
         </table>
@@ -193,6 +261,27 @@ class FirmColumn extends React.Component {
     );
   }
 }
+
+class ResultRow extends React.Component {
+  render() {
+    var firm = this.props.firm
+    var results = this.props.results
+    console.log(results);
+    let resultFirm = results.find(element => element.firmId === firm.id)
+
+    if (!resultFirm) {
+      let init = {};
+      init.value = 0;
+      resultFirm = init;
+    }
+    return (
+      <td className="eachRow">
+        {resultFirm.value}
+      </td>
+    );
+  }
+}
+
 
 class Row extends React.Component {
   onDelEvent() {
@@ -233,7 +322,7 @@ class ValueRow extends React.Component {
     var onValuesUpdate = this.props.onValuesUpdate;
     var values = this.props.values
     let idToFind = firm.id + "/" + criteria.id
-    let value = { id: idToFind };
+    let value = { id: idToFind, firmId: firm.id, criteriaId: criteria.id };
 
     if (!values.find(element => element.id === idToFind)) {
       values.push(value);
@@ -244,6 +333,7 @@ class ValueRow extends React.Component {
     );
   }
 }
+
 
 
 class EditableCell extends React.Component {
