@@ -1,4 +1,6 @@
-import React from 'react'
+import React from 'react';
+import StarRatingComponent from 'react-star-rating-component';
+
 class Criterias extends React.Component {
 
   constructor(props) {
@@ -6,6 +8,8 @@ class Criterias extends React.Component {
 
     this.state = {};
     this.state.filterText = "";
+
+    this.state.rating = 1;
 
     this.state.values = [];
 
@@ -68,7 +72,7 @@ class Criterias extends React.Component {
     this.setState(this.state.values);
 
     this.state.firms.map(element => {
-    this.handleResultUpdate(element.id);
+      this.handleResultUpdate(element.id);
 
     })
 
@@ -165,23 +169,17 @@ class Criterias extends React.Component {
     this.setState(this.state.results);
   }
 
-  handleValuesUpdate(evt) {
+
+  handleValuesUpdate(item) {
     console.log("handleValuesUpdate")
 
-    // Update the value
-    var item = {
-      id: evt.target.id,
-      value: evt.target.value
-    };
-
-    let element = this.state.values.find(element => element.id === evt.target.id)
+    let element = this.state.values.find(element => element.id === item.id)
     if (element) {
       element.value = item.value
     }
 
     // Update the Result , get all the result from this firm 
     let firmId = item.id.split("/")[0]
-    let criteriaId = item.id.split("/")[1]
 
     this.handleResultUpdate(firmId);
     this.setState(this.state.values);
@@ -219,7 +217,7 @@ class GenericTable extends React.Component {
       return (<FirmColumn onFirmsUpdate={onFirmsUpdate} firm={firm} key={firm.id} />)
     });
 
-    var results = this.props.firms.map(function (firm, values) {
+    results = this.props.firms.map(function (firm, values) {
       return (<ResultRow firm={firm} key={firm.id} results={results} />)
     });
 
@@ -263,20 +261,27 @@ class FirmColumn extends React.Component {
 }
 
 class ResultRow extends React.Component {
+
   render() {
     var firm = this.props.firm
     var results = this.props.results
     console.log(results);
     let resultFirm = results.find(element => element.firmId === firm.id)
-
     if (!resultFirm) {
       let init = {};
       init.value = 0;
       resultFirm = init;
     }
     return (
+
       <td className="eachRow">
-        {resultFirm.value}
+        <StarRatingComponent
+          name="firm"
+          starCount={5}
+          value={resultFirm.value}
+          starColor='#FF0000'
+          editing={false}
+          />
       </td>
     );
   }
@@ -305,10 +310,14 @@ class Row extends React.Component {
         <EditableCell onUpdate={this.props.onCriteriaUpdate} cellData={{
           value: this.props.criteria.value,
           id: this.props.criteria.id
-        }} />
+        }}
+          />
         {criterias}
         <td className="del-cell">
-          <input type="button" onClick={this.onDelEvent.bind(this)} value="X" className="del-btn" />
+          <button type="button" class="btn btn-danger" onClick={this.onDelEvent.bind(this)}>
+            <i className="fa fa-trash-o fa-lg"  aria-hidden="true"> </i>
+          </button>
+
         </td>
       </tr>
     );
@@ -316,10 +325,19 @@ class Row extends React.Component {
 }
 
 class ValueRow extends React.Component {
+  onStarClick(nextValue, prevValue, name) {
+    // Update the value
+    var item = {
+      id: name,
+      value: nextValue
+    };
+    this.props.onValuesUpdate(item)
+
+  }
+
   render() {
     var firm = this.props.firm
     var criteria = this.props.criteria
-    var onValuesUpdate = this.props.onValuesUpdate;
     var values = this.props.values
     let idToFind = firm.id + "/" + criteria.id
     let value = { id: idToFind, firmId: firm.id, criteriaId: criteria.id };
@@ -329,7 +347,15 @@ class ValueRow extends React.Component {
     }
 
     return (
-      <EditableCell onUpdate={this.props.onValuesUpdate} cellData={value} />
+      <td>
+        <StarRatingComponent
+          name={value.id}
+          starCount={5}
+          value={value.value}
+          onStarClick={this.onStarClick.bind(this)}
+          />
+      </td>
+
     );
   }
 }
@@ -337,15 +363,14 @@ class ValueRow extends React.Component {
 
 
 class EditableCell extends React.Component {
-
   render() {
     return (
       <td>
         <input type='text' id={this.props.cellData.id} onChange={this.props.onUpdate} value={this.props.cellData.value} />
       </td>
     );
-
   }
-
 }
+
+
 export default Criterias;
