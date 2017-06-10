@@ -7,11 +7,11 @@ import StarRating from 'react-star-rating';
 import '.././node_modules/react-star-rating/dist/css/react-star-rating.min.css';
 import './font-awesome/css/font-awesome.min.css';
 
+
 class App extends Component {
   render() {
     return (
       <div className="App">
-       
         <div className="App-header">
          <title>Borel</title>
           <img src={jmLogo} />
