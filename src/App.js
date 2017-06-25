@@ -4,8 +4,8 @@ import jmLogo from './img/jm.jpg';
 import './App.css';
 import Products from './components/Products.jsx';
 import StarRating from 'react-star-rating';
-import '.././node_modules/react-star-rating/dist/css/react-star-rating.min.css';
 import './font-awesome/css/font-awesome.min.css';
+import './../node_modules/react-star-rating/dist/css/react-star-rating.min.css';
 
 
 class App extends Component {
